@@ -2,7 +2,7 @@
 
 import os
 import sys
-sys.path.insert(0, "/Users/edcollins/Documents/CS/4thYearProject/Code")
+sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 from Dev.DataDownloader.sciencedirect_collect import downloadArticlesFromList
 from Dev.DataDownloader.xml_utils import parseXMLAll
 
@@ -18,7 +18,8 @@ from Dev.DataDownloader.xml_utils import parseXMLAll
 #       The location of the text file containing the URLs of the papers to download. This will be read and each of the
 #       papers downloaded. The default setting assumes you are running this code from the main project folder.
 #LOCATION_OF_PAPER_URLS_LIST = "DataDownloader/cspubsum_ids.txt" #train
-LOCATION_OF_PAPER_URLS_LIST = "DataDownloader/"+os.environ['USER'] #train
+#LOCATION_OF_PAPER_URLS_LIST = "DataDownloader/"+os.environ['USER'] #train
+LOCATION_OF_PAPER_URLS_LIST = "DataDownloader/test" #train
 #LOCATION_OF_PAPER_URLS_LIST = "DataDownloader/cspubsum_test_ids.txt" #test
 
 # ====> (2) : The Place to Store the Papers

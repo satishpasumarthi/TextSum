@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, "/Users/edcollins/Documents/CS/4thYearProject/Code")
+sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 from collections import defaultdict
 import re
 import numpy as np

@@ -4,7 +4,7 @@ import dill
 import pickle
 import sys
 import random
-sys.path.insert(0, "/Users/edcollins/Documents/CS/4thYearProject/Code")
+sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 from operator import itemgetter
 from Dev.DataTools import useful_functions
 from Dev.DataTools.useful_functions import wait, printlist, num2onehot, BASE_DIR, PAPER_SOURCE

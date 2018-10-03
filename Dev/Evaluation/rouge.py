@@ -49,14 +49,20 @@ class Rouge():
         :param refs: list of str : COCO reference sentences for the particular image to be evaluated
         :returns score: int (ROUGE-L score for the candidate evaluated against references)
         """
-        assert(len(candidate)==1)	
-        assert(len(refs)>0)         
+        assert(len(candidate)==1)    
+        #assert(len(refs)>0)         
+        #Work around to skip the papers with out abstract
+        if(len(refs)==0):
+            print("-WARN- length of refs is 0")
+            score = 0.0
+            return score
+
         prec = []
         rec = []
 
         # split into tokens
         token_c = candidate[0].split(" ")
-    	
+        
         for reference in refs:
             # split into tokens
             token_r = reference.split(" ")

@@ -4,7 +4,7 @@ import sys
 import os
 import csv
 import pickle
-sys.path.insert(0, "/Users/edcollins/Documents/CS/4thYearProject/Code")
+sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 from Dev.Evaluation.rouge import Rouge
 from Dev.DataTools.useful_functions import wait
 from operator import itemgetter
@@ -13,7 +13,7 @@ from operator import itemgetter
 
 # ================ CONFIG VARIABLES ================
 
-BASE_DIR = "/Users/edcollins/Documents/CS/4thYearProject/Code/Dev"
+BASE_DIR = os.environ['SCRATCH']+"/MATH689/TextSum/Dev"
 
 # Word2Vec Classifier Trained with the Abstract as Positive Data
 #GOLD_DIR = BASE_DIR + "/Data/Generated_Data/Generated_Summaries/Word2Vec_AbstractPos/Gold/"

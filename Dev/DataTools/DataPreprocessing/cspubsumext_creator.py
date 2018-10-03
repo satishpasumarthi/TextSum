@@ -73,7 +73,7 @@ import ujson as json
 from operator import itemgetter
 from multiprocessing import Pool
 import numpy as np
-sys.path.insert(0, "/Users/edcollins/Documents/CS/4thYearProject/Code")
+sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 from Dev.DataTools import useful_functions
 from Dev.DataTools.useful_functions import wait, BASE_DIR, PAPER_SOURCE, GLOBAL_WORDCOUNT_WRITE_LOC,\
     TRAINING_DATA_WRITE_LOC, Color, NUMBER_OF_PAPERS
@@ -101,6 +101,7 @@ def process_paper(filename):
     :param filename: the filename of the paper to process.
     :return: none, but write the preprocessed file to "Data/Training_Data/"
     """
+    #print("--> Started processing ", filename)
 
     # Start time
     start_time = time.time()
@@ -268,7 +269,8 @@ filenames = [x for x in os.listdir(PAPER_SOURCE) if x.endswith(".txt")]
 print("----> Starting thread pool...")
 
 # Create the thread pool
-pool = Pool()
+# Limit the number of threads to 8
+pool = Pool(processes=8)
 
 print("----> Done.")
 
@@ -278,15 +280,36 @@ start_time = time.time()
 # Begin the processing - takes 134 minutes to run on late 2016 MacBook Pro, dual core i7
 pool.map(process_paper, filenames)
 
+#Debug - sequential pass
+#for filename in filenames:
+#    outfile = TRAINING_DATA_WRITE_LOC + filename.strip(".txt") + ".json"
+#    if not os.path.exists(outfile):
+#        process_paper(filename)
+#    else:
+#        print('-INFO- Skipping processed file --> ',filename)
+#
 print("----> Papers processed, took {} minutes.".format((time.time() - start_time)/60))
 
 data_list = []
 i = 0
+
+print("Preparing data list from all jsons")
+
 for fname in [x for x in os.listdir(TRAINING_DATA_WRITE_LOC) if x.endswith(".json")]:
-    print("Reading item {}".format(i), end="\r")
+    #print("Reading item {}".format(i), end="\r")
+    #print("Reading item ",fname)
+    """
+    Python's standard out is buffered (meaning that it collects some of the data "written" to standard out before it writes it to the terminal). 
+    Calling sys.stdout.flush() forces it to "flush" the buffer, meaning that it will write everything in the buffer to the terminal, even if normally it would wait before doing so.
+    """
     sys.stdout.flush()
-    data_list.append(json.load(open(TRAINING_DATA_WRITE_LOC + fname, "rb")))
+    if os.stat(TRAINING_DATA_WRITE_LOC+'/'+fname).st_size !=0: 
+        data_list.append(json.load(open(TRAINING_DATA_WRITE_LOC + fname, "rb")))
+    else:
+        print('Empty json:: ',fname)
     i += 1
+
+print("-Done-")
 
 with open(TRAINING_DATA_WRITE_LOC + "all_data.json", "wb") as f:
     json.dump(data_list, f)

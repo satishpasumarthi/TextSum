@@ -5,7 +5,8 @@
 # ================ IMPORTS ================
 from __future__ import print_function, division
 import sys
-sys.path.insert(0, "/Users/edcollins/Documents/CS/4thYearProject/Code")
+import os
+sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 from nltk.tokenize import sent_tokenize, word_tokenize
 from Dev.DataTools.Reader import Reader
 from Dev.DataTools.SentenceComparator import SentenceComparator
@@ -29,7 +30,7 @@ import ujson as json
 # ================ CONFIG VARIABLES ================
 
 # The base directory of the project, from the root directory
-BASE_DIR = "/Users/edcollins/Documents/CS/4thYearProject/Code/Dev"
+BASE_DIR = os.environ['SCRATCH']+"/MATH689/TextSum/Dev"
 
 # The path to the directory in which the papers are stored
 PAPER_SOURCE = BASE_DIR + "/Data/Papers/Full/Papers_With_Section_Titles/"

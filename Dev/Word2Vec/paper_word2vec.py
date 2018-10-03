@@ -4,7 +4,7 @@
 from __future__ import print_function
 import os
 import sys
-sys.path.insert(0, "/Users/edcollins/Documents/CS/4thYearProject/Code")
+sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 import csv
 
 
@@ -19,8 +19,10 @@ import re
 from nltk.corpus import stopwords
 import nltk.data
 from Dev import DataTools
-from Dev.DataTools.file_reader import Reader
-from Dev.DataTools.paper_tokenizer import wait
+#from Dev.DataTools.file_reader import Reader
+from Dev.DataTools.Reader import Reader
+#from Dev.DataTools.paper_tokenizer import wait
+#from Dev.DataTools.useful_functions import wait
 
 from nltk.tokenize import sent_tokenize, word_tokenize
 
@@ -38,8 +40,10 @@ from gensim.models import word2vec
 
 DEBUG = False
 #BASE_DIR = "/Users/edcollins/Documents/CS/4thYearProject/Code/Dev"
-BASE_DIR = "/home/satishpasumarthi/textsum/scientific-paper-summarisation/Dev" 
-DATA_SOURCE = BASE_DIR + "/Data/Generated_Data/Sentences_And_SummaryBool/sentence_issummary_listform.csv"
+BASE_DIR = os.environ['SCRATCH']+"/MATH689/TextSum/Dev" 
+#comment this data source as we do not have csv file
+#DATA_SOURCE = BASE_DIR + "/Data/Generated_Data/Sentences_And_SummaryBool/sentence_issummary_listform.csv"
+DATA_SOURCE = BASE_DIR + "/Data/Parsed_Papers/"
 
 
 # ============================================
@@ -91,11 +95,11 @@ def read_in_files():
 
             if DEBUG:
                 print(sentences_as_lists)
-                wait()
+                #wait()
 
             count += 1
 
-    return sentences_as_lists
+    return count,sentences_as_lists
 
 
 def read_data(source):
@@ -132,7 +136,11 @@ def read_data(source):
 
 # Read in all of the papers into a list of lists. Each item in the list is a sentence, in the form of a list of words.
 print("Reading data...")
-sentences = read_data(DATA_SOURCE)
+
+#comment read_data since we donot have .csv file, instead we have all files 
+#sentences = read_data(DATA_SOURCE)
+count,sentences = read_in_files()
+print('Total Number of sentences:: ',count)
 print("Done")
 
 # Configure the logging module so that Word2Vec outputs pretty error messages

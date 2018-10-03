@@ -1,6 +1,6 @@
 import sys
-sys.path.insert(0, "/Users/edcollins/Documents/CS/4thYearProject/Code")
 import os
+sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 import urllib
 import urllib.request
 #import feedparser

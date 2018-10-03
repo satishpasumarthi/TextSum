@@ -7,7 +7,7 @@ import random
 import time
 import csv
 from multiprocessing.dummy import Pool as ThreadPool
-sys.path.insert(0, "/Users/edcollins/Documents/CS/4thYearProject/Code")
+sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 from operator import itemgetter
 from collections import defaultdict
 from Dev.DataTools.Reader import Reader

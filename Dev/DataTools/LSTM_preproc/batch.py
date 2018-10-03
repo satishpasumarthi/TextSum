@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, "/Users/edcollins/Documents/CS/4thYearProject/Code")
+sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 import numpy as np
 from itertools import islice
 from Dev.DataTools.LSTM_preproc.map import numpify

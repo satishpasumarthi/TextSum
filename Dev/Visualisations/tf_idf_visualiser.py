@@ -4,7 +4,7 @@ from __future__ import print_function, division
 import sys
 import os
 from collections import defaultdict
-sys.path.insert(0, "/Users/edcollins/Documents/CS/4thYearProject/Code")
+sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 import time
 import numpy as np
 from Dev.DataTools import useful_functions

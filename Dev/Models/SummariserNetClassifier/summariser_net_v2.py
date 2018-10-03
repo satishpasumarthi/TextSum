@@ -7,7 +7,7 @@ import pickle
 import sys
 import random
 import time
-sys.path.insert(0, "/Users/edcollins/Documents/CS/4thYearProject/Code")
+sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 import matplotlib.pyplot as plt
 from operator import itemgetter
 from Dev.DataTools.Reader import Reader
