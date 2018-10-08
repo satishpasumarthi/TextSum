@@ -23,3 +23,4 @@ Training_Data
 csv2listedcsv.py
 highlight_word2vecs.py
 api.txt
+pickled_dicts

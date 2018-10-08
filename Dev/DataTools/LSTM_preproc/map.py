@@ -1,4 +1,5 @@
 import sys
+import os
 sys.path.insert(0, os.environ['SCRATCH']+"/MATH689/TextSum")
 from collections import defaultdict
 import re

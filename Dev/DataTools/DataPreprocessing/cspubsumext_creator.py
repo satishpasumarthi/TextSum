@@ -294,6 +294,11 @@ data_list = []
 i = 0
 
 print("Preparing data list from all jsons")
+print('Remove any pre-existing all_data.json file')
+
+#Remove any pre existing json file to make sure we are not loading this
+if(os.exists(TRAINING_DATA_WRITE_LOC+"all_data.json")):
+    os.remove(TRAINING_DATA_WRITE_LOC+"all_data.json")
 
 for fname in [x for x in os.listdir(TRAINING_DATA_WRITE_LOC) if x.endswith(".json")]:
     #print("Reading item {}".format(i), end="\r")

@@ -48,7 +48,8 @@ PAPER_BAG_OF_WORDS_LOC = BASE_DIR + "/DataTools/pickled_dicts/paper_bag_of_words
 KEYPHRASES_LOC = BASE_DIR + "/DataTools/pickled_dicts/keyphrases.pkl"
 
 # Location of dictionary which is a global wordcount of the number of words counted across all papers
-GLOBAL_COUNT_LOC = BASE_DIR + "/Data/Utility_Data/Global_Counts/global_wordcount.pkl"
+#GLOBAL_COUNT_LOC = BASE_DIR + "/Data/Utility_Data/Global_Counts/global_wordcount.pkl"
+GLOBAL_COUNT_LOC = BASE_DIR + "/Data/Utility_Data/Global_Counts/document_wordcount.pkl"
 
 # Location of the file with stopwords in it
 STOPWORD_SOURCE = BASE_DIR + "/Data/Utility_Data/common_words.txt"
@@ -941,8 +942,13 @@ def load_cspubsumext():
     print("----> Converting number lists to numpy arrays...")
     i = 0
     cspubsumext = []
+    count = 1
     for data_item in json_file:
-
+        if(isinstance(data_item,dict)):
+            print("processing ",data_item["filename"])
+        else:
+            print(len(data_item))
+        count +=1 
         new_data_item = {}
 
         for key, val in data_item.iteritems():

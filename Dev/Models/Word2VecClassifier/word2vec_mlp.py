@@ -49,7 +49,8 @@ NUM_CLASSES = 2
 LEARNING_RATE = 0.0001
 
 # Maximum number of epochs
-MAX_EPOCHS = 1000
+#MAX_EPOCHS = 1000
+MAX_EPOCHS = 20
 
 # How often to display network progress and test its accuracy
 DISPLAY_EVERY = 300

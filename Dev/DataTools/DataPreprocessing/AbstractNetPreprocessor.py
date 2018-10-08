@@ -56,12 +56,14 @@ class AbstractNetPreprocessor(DataPreprocessor):
         print("Reading bags of words...")
         t = time.time()
         self.paper_bags_of_words = useful_functions.load_pickled_object(PAPER_BAG_OF_WORDS_LOC)
+        #self.paper_bags_of_words = {} 
         print("Done, took ", time.time() - t, " seconds.")
 
         # Dictionary holding the keyphrases for each paper
         print("Reading keyphrases...")
         t = time.time()
         self.keyphrases = useful_functions.load_pickled_object(KEYPHRASES_LOC)
+        #self.keyphrases = {}
         print("Done, took ", time.time() - t, " seconds.")
 
         # Dictionary which contains the counts of the number of different papers that a word occurs in

@@ -46,8 +46,8 @@ class Word2VecSummariser(Summariser):
     def summarise(self, filename):
         """
         Generates a summary of the paper.
-        :param filename: the name of the file to summaries
-        :return: a sumamry of the paper.
+        :param filename: the name of the file to summarise
+        :return: a summary of the paper.
         """
 
         # Each item has form (sentence, sentence_vector, abstract_vector, features)

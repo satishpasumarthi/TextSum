@@ -26,6 +26,8 @@ from sklearn.metrics import precision_recall_fscore_support
 import tensorflow as tf
 import numpy as np
 
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
+
 # =========================================
 
 # ================ CONFIG VARIABLES ================
