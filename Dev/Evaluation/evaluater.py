@@ -66,6 +66,18 @@ REFERENCE_DIR = BASE_DIR + "/Data/Generated_Data/Generated_Summaries/" + SUMM_NA
 STATS_WRITE_LOC = BASE_DIR + "/Data/Generated_Data/Generated_Summaries/" + SUMM_NAME + "/scores.csv"
 PICKLE_WRITE_LOC = BASE_DIR + "/Data/Generated_Data/Generated_Summaries/" + SUMM_NAME + "/scores.pkl"
 
+# SummaRunner supervised Classifier
+GOLD_DIR = BASE_DIR + "/Data/Generated_Data/Generated_Summaries/SummaRunnerSummariser/Gold/"
+REFERENCE_DIR = BASE_DIR + "/Data/Generated_Data/Generated_Summaries/SummaRunnerSummariser/Text/"
+STATS_WRITE_LOC = BASE_DIR + "/Data/Generated_Data/Generated_Summaries/SummaRunnerSummariser/scores.csv"
+PICKLE_WRITE_LOC = BASE_DIR + "/Data/Generated_Data/Generated_Summaries/SummaRunnerSummariser/scores.pkl"
+
+# SAFNet supervised Classifier
+GOLD_DIR = BASE_DIR + "/Data/Generated_Data/Generated_Summaries/SummariserNetSummariser/Gold/"
+REFERENCE_DIR = BASE_DIR + "/Data/Generated_Data/Generated_Summaries/SummariserNetSummariser/Text/"
+STATS_WRITE_LOC = BASE_DIR + "/Data/Generated_Data/Generated_Summaries/SummariserNetSummariser/scores.csv"
+PICKLE_WRITE_LOC = BASE_DIR + "/Data/Generated_Data/Generated_Summaries/SummariserNetSummariser/scores.pkl"
+
 # ==================================================
 
 golds = []

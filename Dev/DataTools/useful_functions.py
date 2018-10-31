@@ -944,10 +944,10 @@ def load_cspubsumext():
     cspubsumext = []
     count = 1
     for data_item in json_file:
-        if(isinstance(data_item,dict)):
-            print("processing ",data_item["filename"])
-        else:
-            print(len(data_item))
+        #if(isinstance(data_item,dict)):
+        #    print("processing ",data_item["filename"])
+        #else:
+        #    print(len(data_item))
         count +=1 
         new_data_item = {}
 
@@ -965,7 +965,7 @@ def load_cspubsumext():
 
         cspubsumext.append(new_data_item)
 
-        print("Processed {}".format(i), end="\r")
+        #print("Processed {}".format(i), end="\r")
         i += 1
         sys.stdout.flush()
     print("\n----> Done.")

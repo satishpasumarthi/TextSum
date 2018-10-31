@@ -46,7 +46,7 @@ BATCH_SIZE = 100
 SENTENCE_WEIGHTS = 200
 
 # The number of units in the hidden layer
-HIDDEN_LAYER_WEIGHTS = 128
+HIDDEN_LAYER_WEIGHTS = 32
 FINAL_LAYER_WEIGHTS = 1024
 
 # The number of classes to classify into
@@ -56,7 +56,7 @@ NUM_CLASSES = 2
 LEARNING_RATE = 0.0001
 
 # Maximum number of epochs
-MAX_EPOCHS = 1000
+MAX_EPOCHS = 1
 
 # How often to display network progress and test its accuracy
 DISPLAY_EVERY = 100
@@ -64,7 +64,7 @@ DISPLAY_EVERY = 100
 # How many steps the network can go without improving before it is deemed to have converged
 MAX_STEPS_SINCE_SAVE = 15
 
-# The maximum length that a sentence could be (sentences longer than this are discarded)
+# The maximum length that a sentence could be (sentences longer than this are truncated)
 MAX_SENT_LEN = 100
 
 # The size of the validation set of data
@@ -74,7 +74,7 @@ VALIDATION_SIZE = 3000
 VOCAB = set(WORD2VEC.index2word)
 
 # True if the model is already trained
-PRETRAINED = True
+PRETRAINED = False
 
 # True to analyse sentence errors in detail
 ANALYSE_ERRORS = True
@@ -122,23 +122,26 @@ def get_data():
             sent = sentence[0]
             sec = sentence[1]
             y = sentence[2]
-            sents_absvec_feats_class.append((sent, abstract_vec, feat, y))
+            #sents_absvec_feats_class.append((sent, abstract_vec, feat, y))
+            sents_absvec_feats_class.append((sent[:MAX_SEN_LEN], abstract_vec, feat, y))
 
     data = sents_absvec_feats_class
 
     print("Done, took ", time.time() - t, " seconds")
 
-    print("Processing Data...")
+    #avoiding this step as we are using [:MAX_SENT_LEN] in above step
+    #To truncate the input sentences at fixed length
+    #print("Processing Data...")
+    #new_data = []
+    #for sent, abs_vec, feat, y in data:
+    #    if len(sent) > MAX_SENT_LEN:
+    #        new_sent = sent[0:MAX_SENT_LEN]
+    #    else:
+    #        new_sent = sent
+    #    new_data.append((new_sent, abs_vec, feat, y))
 
-    new_data = []
-    for sent, abs_vec, feat, y in data:
-        if len(sent) > MAX_SENT_LEN:
-            new_sent = sent[0:MAX_SENT_LEN]
-        else:
-            new_sent = sent
-        new_data.append((new_sent, abs_vec, feat, y))
-
-    return new_data
+    #return new_data
+    return data
 
 def batch2input(batch_data, num_items):
     """
@@ -180,113 +183,113 @@ def sents2input(batch_data, num_items):
 
 # ================ MAIN ================
 
-def graph_I():
-    """
-    Function to encapsulate the construction of a TensorFlow computation graph.
-    :return: input placeholders, optimisation operation, loss, accuracy, prediction operations
-    """
-
-    # ----> Define placeholders <----
-
-    # Input has shape [batch_size x num_steps x num_input (word vector dimensions)]
-    sentence_input = tf.placeholder(dtype=tf.float32, shape=[None, MAX_SENT_LEN, WORD_DIMENSIONS])
-
-    # Abstract input
-    abstract_input = tf.placeholder(dtype=tf.float32, shape=[None, WORD_DIMENSIONS])
-
-    # Features input
-    features_input = tf.placeholder(dtype=tf.float32, shape=[None, NUM_FEATURES])
-
-    # The lengths of each of the sentences
-    seq_lens = tf.placeholder(dtype=tf.int32, shape=[None])
-
-    # Labels as one-hot vectors
-    labels = tf.placeholder(dtype=tf.float32, shape=[None, NUM_CLASSES])
-
-    # Keep probability for dropout
-    keep_prob = tf.placeholder(dtype=tf.float32)
-
-    # ----> LSTM to Read Sentences <----
-
-    # Define the LSTM cell
-    lstm_cell = tf.nn.rnn_cell.LSTMCell(HIDDEN_LAYER_WEIGHTS, initializer=tf.contrib.layers.xavier_initializer())
-    lstm_cell = tf.nn.rnn_cell.DropoutWrapper(cell=lstm_cell, output_keep_prob=keep_prob)
-
-    # Create the RNN
-    outputs, states = tf.nn.bidirectional_dynamic_rnn(
-        cell_fw=lstm_cell,
-        cell_bw=lstm_cell,
-        dtype=tf.float32,
-        sequence_length=seq_lens,
-        inputs=sentence_input
-    )
-
-    # Get the final output has shape [batch_size x 128]
-    output = tf.concat(1, [states[0][1], states[1][1]])
-
-    # We project the LSTM output down to shape [batch_size x 100], which can then be combined with the abstract vector
-    lstm_output = tf.nn.relu(tf.contrib.layers.linear(output, WORD_DIMENSIONS))
-
-    # ----> Abstract Gate to process the Abstract Vector <----
-
-    # Apply linear layer and ReLU activation
-    abstract_gate = tf.nn.relu(tf.contrib.layers.linear(abstract_input, WORD_DIMENSIONS))
-
-    # ----> Combine the Abstract Information with the LSTM Output <----
-
-    # Take the Hadamard product of the abstract and the LSTM output
-    combined_sent_abstract = tf.mul(lstm_output, abstract_gate)
-
-    # Pass this through an activation function
-    combined_sent_abstract = tf.nn.relu(tf.contrib.layers.linear(combined_sent_abstract, WORD_DIMENSIONS))
-
-    # ----> Feature Gate to process the Features <----
-
-    # Apply linear layer and ReLU activation
-    feature_gate = tf.nn.relu(tf.contrib.layers.linear(features_input, NUM_FEATURES))
-
-    # ----> Combine the Feature Information with the Sentence and Abstract Information <----
-
-    # Concatenate the two vectors of information
-    combined_info = tf.concat_v2([combined_sent_abstract, feature_gate], axis=1)
-
-    # ----> Pass the combined information through a final hidden layer <---
-
-    # We will use a hidden layer with 1024 units
-    final_hidden_layer = tf.nn.relu(tf.contrib.layers.linear(combined_info, FINAL_LAYER_WEIGHTS))
-
-    # ----> Project the final output down to the number of classes <----
-
-    scores = tf.contrib.layers.linear(final_hidden_layer, NUM_CLASSES)
-
-    # Define the loss function
-    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(scores, labels))
-    opt = tf.train.AdamOptimizer(LEARNING_RATE).minimize(loss)
-
-    # Predictions
-    predictions = tf.nn.softmax(scores)
-
-    # Calculate accuracy
-    pred_answers = tf.argmax(scores, axis=1)
-    correct_answers = tf.argmax(labels, axis=1)
-    accuracy = tf.reduce_mean(tf.cast(tf.equal(pred_answers, correct_answers), tf.float32))
-
-    return_dict = {
-        "sentence_input": sentence_input,
-        "abstract_input": abstract_input,
-        "features_input": features_input,
-        "sequence_lengths": seq_lens,
-        "keep_prob": keep_prob,
-        "labels": labels,
-        "loss": loss,
-        "optimisation": opt,
-        "raw_predictions": predictions,
-        "classification_predictions": pred_answers,
-        "correct_answers": correct_answers,
-        "accuracy": accuracy
-    }
-
-    return return_dict
+#def graph_I():
+#    """
+#    Function to encapsulate the construction of a TensorFlow computation graph.
+#    :return: input placeholders, optimisation operation, loss, accuracy, prediction operations
+#    """
+#
+#    # ----> Define placeholders <----
+#
+#    # Input has shape [batch_size x num_steps x num_input (word vector dimensions)]
+#    sentence_input = tf.placeholder(dtype=tf.float32, shape=[None, MAX_SENT_LEN, WORD_DIMENSIONS])
+#
+#    # Abstract input
+#    abstract_input = tf.placeholder(dtype=tf.float32, shape=[None, WORD_DIMENSIONS])
+#
+#    # Features input
+#    features_input = tf.placeholder(dtype=tf.float32, shape=[None, NUM_FEATURES])
+#
+#    # The lengths of each of the sentences
+#    seq_lens = tf.placeholder(dtype=tf.int32, shape=[None])
+#
+#    # Labels as one-hot vectors
+#    labels = tf.placeholder(dtype=tf.float32, shape=[None, NUM_CLASSES])
+#
+#    # Keep probability for dropout
+#    keep_prob = tf.placeholder(dtype=tf.float32)
+#
+#    # ----> LSTM to Read Sentences <----
+#
+#    # Define the LSTM cell
+#    lstm_cell = tf.nn.rnn_cell.LSTMCell(HIDDEN_LAYER_WEIGHTS, initializer=tf.contrib.layers.xavier_initializer())
+#    lstm_cell = tf.nn.rnn_cell.DropoutWrapper(cell=lstm_cell, output_keep_prob=keep_prob)
+#
+#    # Create the RNN
+#    outputs, states = tf.nn.bidirectional_dynamic_rnn(
+#        cell_fw=lstm_cell,
+#        cell_bw=lstm_cell,
+#        dtype=tf.float32,
+#        sequence_length=seq_lens,
+#        inputs=sentence_input
+#    )
+#
+#    # Get the final output has shape [batch_size x 128]
+#    output = tf.concat([states[0][1], states[1][1]],axis=1)
+#
+#    # We project the LSTM output down to shape [batch_size x 100], which can then be combined with the abstract vector
+#    lstm_output = tf.nn.relu(tf.contrib.layers.linear(output, WORD_DIMENSIONS))
+#
+#    # ----> Abstract Gate to process the Abstract Vector <----
+#
+#    # Apply linear layer and ReLU activation
+#    abstract_gate = tf.nn.relu(tf.contrib.layers.linear(abstract_input, WORD_DIMENSIONS))
+#
+#    # ----> Combine the Abstract Information with the LSTM Output <----
+#
+#    # Take the Hadamard product of the abstract and the LSTM output
+#    combined_sent_abstract = tf.mul(lstm_output, abstract_gate)
+#
+#    # Pass this through an activation function
+#    combined_sent_abstract = tf.nn.relu(tf.contrib.layers.linear(combined_sent_abstract, WORD_DIMENSIONS))
+#
+#    # ----> Feature Gate to process the Features <----
+#
+#    # Apply linear layer and ReLU activation
+#    feature_gate = tf.nn.relu(tf.contrib.layers.linear(features_input, NUM_FEATURES))
+#
+#    # ----> Combine the Feature Information with the Sentence and Abstract Information <----
+#
+#    # Concatenate the two vectors of information
+#    combined_info = tf.concat([combined_sent_abstract, feature_gate], axis=1)
+#
+#    # ----> Pass the combined information through a final hidden layer <---
+#
+#    # We will use a hidden layer with 1024 units
+#    final_hidden_layer = tf.nn.relu(tf.contrib.layers.linear(combined_info, FINAL_LAYER_WEIGHTS))
+#
+#    # ----> Project the final output down to the number of classes <----
+#
+#    scores = tf.contrib.layers.linear(final_hidden_layer, NUM_CLASSES)
+#
+#    # Define the loss function
+#    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=scores, labels=labels))
+#    opt = tf.train.AdamOptimizer(LEARNING_RATE).minimize(loss)
+#
+#    # Predictions
+#    predictions = tf.nn.softmax(scores)
+#
+#    # Calculate accuracy
+#    pred_answers = tf.argmax(scores, axis=1)
+#    correct_answers = tf.argmax(labels, axis=1)
+#    accuracy = tf.reduce_mean(tf.cast(tf.equal(pred_answers, correct_answers), tf.float32))
+#
+#    return_dict = {
+#        "sentence_input": sentence_input,
+#        "abstract_input": abstract_input,
+#        "features_input": features_input,
+#        "sequence_lengths": seq_lens,
+#        "keep_prob": keep_prob,
+#        "labels": labels,
+#        "loss": loss,
+#        "optimisation": opt,
+#        "raw_predictions": predictions,
+#        "classification_predictions": pred_answers,
+#        "correct_answers": correct_answers,
+#        "accuracy": accuracy
+#    }
+#
+#    return return_dict
 
 def graph():
     """
@@ -326,32 +329,34 @@ def graph():
         cell_bw=lstm_cell,
         dtype=tf.float32,
         sequence_length=seq_lens,
-        inputs=sentence_input
+        inputs=sentence_input,
+        parallel_iterations=4
     )
-
+    #print(states[0][1])
+    #print(states[1][1])
     # Get the final output has shape [batch_size x 128]
-    lstm_output = tf.concat(1, [states[0][1], states[1][1]])
+    lstm_output = tf.concat([states[0][1], states[1][1]],axis=1)
 
     # We project the LSTM output down to shape [batch_size x 100], which can then be combined with the abstract vector
-    lstm_output = tf.nn.relu(tf.contrib.layers.linear(lstm_output, WORD_DIMENSIONS))
+    lstm_output = tf.contrib.layers.fully_connected(lstm_output, WORD_DIMENSIONS, activation_fn=tf.nn.relu)
 
     # ----> Preprocess the abstract and features <----
 
     # Concatenate into one vector
-    abs_feats = tf.concat_v2([abstract_input, features_input], axis=1)
+    abs_feats = tf.concat([abstract_input, features_input], axis=1)
 
     # Pass through a ReLU
-    abs_feats = tf.nn.relu(tf.contrib.layers.linear(abs_feats, NUM_FEATURES + WORD_DIMENSIONS))
+    abs_feats = tf.contrib.layers.fully_connected(abs_feats, NUM_FEATURES + WORD_DIMENSIONS, activation_fn=tf.nn.relu)
 
     # ----> Concatenate the abstract and feature information with the LSTM ouput <----
 
     # Concatenate with the LSTM output
-    full_info = tf.concat_v2([lstm_output, abs_feats], axis=1)
+    full_info = tf.concat([lstm_output, abs_feats], axis=1)
 
     # ----> Pass the full information through a hidden layer <----
 
     # We will use ReLU activation and 1024 hidden units
-    final_hidden_layer = tf.nn.relu(tf.contrib.layers.linear(full_info, FINAL_LAYER_WEIGHTS))
+    final_hidden_layer = tf.contrib.layers.fully_connected(full_info, FINAL_LAYER_WEIGHTS, activation_fn=tf.nn.relu)
 
     # ----> Add dropout for regularisation <----
 
@@ -359,10 +364,10 @@ def graph():
 
     # ----> Project the final output down to the number of classes <----
 
-    scores = tf.contrib.layers.linear(final_hidden_layer, NUM_CLASSES)
+    scores = tf.contrib.layers.fully_connected(final_hidden_layer, NUM_CLASSES, activation_fn=None)
 
     # Define the loss function
-    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(scores, labels))
+    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=scores, labels=labels))
     opt = tf.train.AdamOptimizer(LEARNING_RATE).minimize(loss)
 
     # Predictions
@@ -418,6 +423,8 @@ if __name__ == '__main__':
     correct_answers = graph_outputs["correct_answers"]
     accuracy = graph_outputs["accuracy"]
 
+    print(graph_outputs)
+
     # ====> Train the Network <====
 
     with tf.Session() as sess:
@@ -440,6 +447,7 @@ if __name__ == '__main__':
         validation_data = test_data[0:VALIDATION_SIZE]
 
         print("Length of Training Data: ", len(train_data))
+        print("Length of Validataion Data: ", len(validation_data))
         print("Length of Testing Data: ", len(test_data))
 
         num_batches = int(len(train_data) / BATCH_SIZE)
@@ -474,6 +482,7 @@ if __name__ == '__main__':
 
                     # Turn batch into 3D matrix and one-hot labels
                     batch_inputs, lens, batch_labels, batch_abstracts, batch_features = batch2input(batch_data, BATCH_SIZE)
+                    #print(batch_labels)
 
                     # Create the feed_dict
                     feed_dict = {
@@ -549,14 +558,14 @@ if __name__ == '__main__':
             plt.xlabel("Training Iteration")
             plt.title(MODEL_NAME + " Test Accuracy During Training")
             plt.savefig(SAVE_DIR + MODEL_NAME + "_accuracy_" + str(HIDDEN_LAYER_WEIGHTS) + ".png")
-            plt.show()
+            #plt.show()
 
             plt.plot(losses)
             plt.ylabel("Loss")
             plt.xlabel("Training Iteration")
             plt.title(MODEL_NAME + " Test Loss During Training")
             plt.savefig(SAVE_DIR + MODEL_NAME + "_loss_" + str(HIDDEN_LAYER_WEIGHTS) + ".png")
-            plt.show()
+            #plt.show()
 
         # Test the model
 

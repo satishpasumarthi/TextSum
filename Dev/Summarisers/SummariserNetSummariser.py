@@ -26,8 +26,7 @@ LOADING_SECTION_SIZE = NUMBER_OF_PAPERS / 30
 
 class SummariserNetSummariser(Summariser):
     """
-    Implements a logistic regression summariser that used a logistic regression classifier to tell if sentences are
-    summary sentences or not.
+    SAFNet Architecture
     """
 
     def __init__(self):
