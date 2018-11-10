@@ -187,7 +187,7 @@ class EnsembleSummariser(Summariser):
         if visualise:
             return final_sents_probs
 
-        #summary = final_sents_probs[0:self.summary_length]
+        summary = final_sents_probs[0:self.summary_length]
 
         """
         # ====> Attempt Three <====
@@ -317,9 +317,9 @@ if __name__ == "__main__":
     # Paper Three: S0142694X15000423.txt
     summ = EnsembleSummariser()
 
-    summ.summarise("our_paper.txt")
+    #summ.summarise("S0168874X14001395.txt")
 
-    wait()
+    #wait()
 
     #summ.summarise("S0142694X15000423.txt")
     #summ.summarise("S0142694X15000423.txt")
